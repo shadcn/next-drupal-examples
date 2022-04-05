@@ -5,7 +5,9 @@ import { getPathsFromContext, getResourceFromContext } from "next-drupal"
 import { Layout } from "@/components/layout"
 
 export default function PropertyPage({ property }) {
-  const thumbnail = property.field_images?.[0].field_media_image
+  if (!property) return null
+
+  const thumbnail = property?.field_images?.[0].field_media_image
 
   return (
     <Layout>

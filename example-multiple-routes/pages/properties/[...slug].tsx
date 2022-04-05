@@ -34,14 +34,24 @@ export default function PropertyPage({ property }) {
 }
 
 export async function getStaticPaths(context) {
+  const paths = await getPathsFromContext(["node--property_listing"], context)
+
+  // Delete the "properties" prefix for route.
+  paths.map((path) => {
+    if (typeof path !== "string" && Array.isArray(path.params.slug)) {
+      path.params.slug.shift()
+    }
+
+    return path
+  })
+
   return {
-    paths: await getPathsFromContext(["node--property_listing"], context),
+    paths,
     fallback: "blocking",
   }
 }
 
 export async function getStaticProps(context) {
-  console.log(context)
   const property = await getResourceFromContext(
     "node--property_listing",
     context,

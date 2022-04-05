@@ -29,21 +29,33 @@ To help with this, `next-drupal` data fetchers has a `prefix` option you can lev
 
 ## How it works
 
-Use the `prefix` options when fetching data in `getResourceFromContext`
+1. Remove the subdir from the paths in `getStaticPaths`
+2. Use the `prefix` options when fetching data in `getResourceFromContext`
 
 For `pages/blog/[...slug].tsx`
 
 ```ts
 export async function getStaticPaths(context) {
+  const paths = await getPathsFromContext(["node--article"], context)
+
+  // 1️⃣ Delete the "blog" prefix for route. <---------------
+  paths.map((path) => {
+    if (typeof path !== "string" && Array.isArray(path.params.slug)) {
+      path.params.slug.shift()
+    }
+
+    return path
+  })
+
   return {
-    paths: await getPathsFromContext(["node--article"], context),
+    paths,
     fallback: "blocking",
   }
 }
 
 export async function getStaticProps(context) {
   const article = await getResourceFromContext("node--article", context, {
-    prefix: "blog", // <----- Prefix with the subdir path.
+    prefix: "blog", // 2️⃣ Prefix with the subdir path. <---------------
     params: {
       include: "field_image,uid",
     },

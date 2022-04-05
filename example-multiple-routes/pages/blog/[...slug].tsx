@@ -40,8 +40,19 @@ export default function ArticlePage({ article }) {
 }
 
 export async function getStaticPaths(context) {
+  const paths = await getPathsFromContext(["node--article"], context)
+
+  // Delete the "blog" prefix for route.
+  paths.map((path) => {
+    if (typeof path !== "string" && Array.isArray(path.params.slug)) {
+      path.params.slug.shift()
+    }
+
+    return path
+  })
+
   return {
-    paths: await getPathsFromContext(["node--article"], context),
+    paths,
     fallback: "blocking",
   }
 }

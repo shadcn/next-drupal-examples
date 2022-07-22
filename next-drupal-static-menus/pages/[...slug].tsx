@@ -6,19 +6,20 @@ import { DrupalNode } from "next-drupal"
 import { drupal } from "lib/drupal"
 import { NodeArticle } from "components/node--article"
 import { NodeBasicPage } from "components/node--basic-page"
-import { Layout } from "components/layout"
+import { Layout, LayoutProps } from "components/layout"
 
 const RESOURCE_TYPES = ["node--page", "node--article"]
 
 interface NodePageProps {
   resource: DrupalNode
+  menus: LayoutProps["menus"]
 }
 
-export default function NodePage({ resource }: NodePageProps) {
+export default function NodePage({ resource, menus }: NodePageProps) {
   if (!resource) return null
 
   return (
-    <Layout>
+    <Layout menus={menus}>
       <Head>
         <title>{resource.title}</title>
         <meta name="description" content="A Next.js site powered by Drupal." />
@@ -80,9 +81,17 @@ export async function getStaticProps(
     }
   }
 
+  // Fetch menus.
+  const mainMenu = await drupal.getMenu("main")
+  const footerMenu = await drupal.getMenu("footer")
+
   return {
     props: {
       resource,
+      menus: {
+        main: mainMenu.tree,
+        footer: footerMenu.tree,
+      },
     },
   }
 }
